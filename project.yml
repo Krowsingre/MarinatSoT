@@ -1,0 +1,40 @@
+name: Marin
+options:
+  bundleIdPrefix: com.krowsingre
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+
+packages:
+  MarinCore:
+    path: MarinCore
+
+targets:
+  Marin:
+    type: application
+    platform: iOS
+    sources:
+      - App
+    dependencies:
+      - package: MarinCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.krowsingre.marin
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        SWIFT_VERSION: "5.0"
+        TARGETED_DEVICE_FAMILY: "1"
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: Marin
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
+        INFOPLIST_KEY_UIStatusBarHidden: YES
+
+schemes:
+  Marin:
+    build:
+      targets:
+        Marin: all
+    run:
+      config: Debug

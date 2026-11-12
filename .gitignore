@@ -1,0 +1,14 @@
+# The Xcode project is generated from project.yml
+*.xcodeproj
+*.xcworkspace
+
+# Build output
+build/
+out/
+build-full.log
+.build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+
+.DS_Store
