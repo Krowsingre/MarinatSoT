@@ -23,8 +23,14 @@ struct GameView: View {
             HUD(controller: controller, panel: $panel)
 
             if let panel {
-                PanelCard(panel: panel, words: controller.voyage.vocabulary) {
-                    self.panel = nil
+                if panel == .poetry {
+                    ComposeView(controller: controller) {
+                        self.panel = nil
+                    }
+                } else {
+                    PanelCard(panel: panel, poems: controller.voyage.poems) {
+                        self.panel = nil
+                    }
                 }
             }
 
@@ -32,6 +38,11 @@ struct GameView: View {
                 CatchCard(caught: caught) {
                     controller.caught = nil
                 }
+            }
+        }
+        .onAppear {
+            if controller.opensComposing {
+                panel = .poetry
             }
         }
         .statusBarHidden(true)

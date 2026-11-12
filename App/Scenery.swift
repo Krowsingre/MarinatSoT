@@ -66,6 +66,28 @@ enum SceneryBuilder {
         return CGPath(ellipseIn: CGRect(x: -14, y: -5, width: 28, height: 10), transform: nil).union(tail)
     }
 
+    /// Long trailing fins, worn by a fish that has grown into a tall tale.
+    static func finPath() -> CGPath {
+        polygon([
+            CGPoint(x: -8, y: 0), CGPoint(x: -30, y: 11), CGPoint(x: -56, y: 17), CGPoint(x: -38, y: 4),
+            CGPoint(x: -60, y: -1), CGPoint(x: -38, y: -5), CGPoint(x: -54, y: -17), CGPoint(x: -28, y: -10)
+        ])
+    }
+
+    /// The colour a word lends to the magic. PLACEHOLDER: only the placeholder words have colours.
+    static func colour(forWord word: String) -> RGB? {
+        switch word {
+        case "tide", "sea", "wave", "deep": return RGB(0.30, 0.78, 0.95)
+        case "salt", "silver", "grey", "stone": return RGB(0.86, 0.90, 0.98)
+        case "moon", "hush", "net": return RGB(0.80, 0.84, 1.0)
+        case "lantern", "light", "morning": return RGB(1.0, 0.82, 0.35)
+        case "gull", "wind", "far": return RGB(0.70, 0.95, 0.90)
+        case "home", "harbor", "shore", "boat": return RGB(1.0, 0.62, 0.50)
+        case "song", "tale": return RGB(0.86, 0.62, 1.0)
+        default: return nil
+        }
+    }
+
     // MARK: - The horizon
 
     /// The far mountains for one stretch. y = 0 is the horizon.
@@ -240,9 +262,16 @@ enum SceneryBuilder {
     // MARK: - Under the water
 
     /// What is seen below the surface once the line is cast. The origin is the bottom-left corner.
-    static func underwater(seed: UInt64, width: CGFloat, height: CGFloat, scale k: CGFloat) -> Scenery {
+    ///
+    /// `magic` runs from 0, an ordinary sea, to 1. As it grows the fish change: they grow larger,
+    /// take on colour and light, and trail long fins. `colours` are the colours they take,
+    /// drawn from the words the voyager uses most in their own poems.
+    static func underwater(seed: UInt64, width: CGFloat, height: CGFloat, scale k: CGFloat,
+                           magic: Double = 0, colours: [RGB] = []) -> Scenery {
         var random = SeededRandom(seed: seed)
         let scenery = Scenery()
+        let m = min(max(magic, 0), 1)
+        let wonders = colours.isEmpty ? [RGB(1.0, 0.82, 0.35)] : colours
 
         // Shafts of light from the surface.
         for index in 0 ..< 5 {
@@ -256,8 +285,9 @@ enum SceneryBuilder {
 
         // Large shadowy fish, far off.
         for _ in 0 ..< random.whole(1, 2) {
-            let big = scenery.add(fishPath(), RGB(0.10, 0.14, 0.32), z: 2, alpha: 0.28)
-            let size = CGFloat(random.range(3.2, 5.5)) * k
+            let shadow = RGB(0.10, 0.14, 0.32).mixed(with: wonders[0], t: m * 0.7)
+            let big = scenery.add(fishPath(), shadow, z: 2, alpha: CGFloat(0.28 + 0.34 * m))
+            let size = CGFloat(random.range(3.2, 5.5) * (1 + 0.9 * m)) * k
             let goingRight = random.unit() < 0.5
             big.xScale = goingRight ? size : -size
             big.yScale = size
@@ -330,9 +360,28 @@ enum SceneryBuilder {
                                   y: height * CGFloat(random.range(0.5, 0.72)))
         scenery.node.addChild(school)
         for _ in 0 ..< random.whole(6, 9) {
-            let small = scenery.add(fishPath(), RGB(0.78, 0.87, 0.96), z: 0, alpha: 0.85, to: school)
-            small.setScale(CGFloat(random.range(0.55, 0.85)) * k)
-            small.position = CGPoint(x: CGFloat(random.range(-70, 70)) * k, y: CGFloat(random.range(-26, 26)) * k)
+            let plain = RGB(0.66, 0.74, 0.84)
+            let wonder = wonders[random.whole(0, wonders.count - 1)]
+            let size = CGFloat(random.range(0.55, 0.85) * (1 + 0.9 * m)) * k
+            let place = CGPoint(x: CGFloat(random.range(-70, 70)) * k, y: CGFloat(random.range(-26, 26)) * k)
+            if m > 0.05 {
+                let glow = SKSpriteNode(texture: Paint.softGlow())
+                glow.size = CGSize(width: 80 * size, height: 50 * size)
+                glow.color = wonder.uiColor
+                glow.colorBlendFactor = 1
+                glow.blendMode = .add
+                glow.alpha = CGFloat(0.55 * m)
+                glow.position = place
+                glow.zPosition = -1
+                school.addChild(glow)
+
+                let fins = scenery.add(finPath(), wonder, z: 0, alpha: CGFloat(0.6 * m), to: school)
+                fins.setScale(size * CGFloat(0.5 + 0.9 * m))
+                fins.position = place
+            }
+            let small = scenery.add(fishPath(), plain.mixed(with: wonder, t: m), z: 1, alpha: 0.9, to: school)
+            small.setScale(size)
+            small.position = place
         }
         school.run(.repeatForever(.sequence([
             .moveBy(x: 90 * k, y: 6 * k, duration: 11),
@@ -350,6 +399,16 @@ enum SceneryBuilder {
             scenery.node.addChild(jelly)
             let r = CGFloat(random.range(11, 18)) * k
             let colour = RGB(0.99, 0.74, 0.88)
+            if m > 0.05 {
+                let glow = SKSpriteNode(texture: Paint.softGlow())
+                glow.size = CGSize(width: r * 6, height: r * 6)
+                glow.color = colour.uiColor
+                glow.colorBlendFactor = 1
+                glow.blendMode = .add
+                glow.alpha = CGFloat(0.5 * m)
+                glow.zPosition = -1
+                jelly.addChild(glow)
+            }
             let dome = CGPath(ellipseIn: CGRect(x: -r, y: -r * 0.8, width: r * 2, height: r * 1.6), transform: nil)
                 .intersection(CGPath(rect: CGRect(x: -r, y: 0, width: r * 2, height: r), transform: nil))
             scenery.add(dome, colour, z: 1, alpha: 0.8, to: jelly)

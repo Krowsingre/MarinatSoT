@@ -18,8 +18,11 @@ final class SeaController: ObservableObject {
     @Published var phase: DayPhase = .day
     /// The bottle just landed, shown until the player keeps it.
     @Published var caught: Caught?
-    /// The words and bottles gathered so far.
+    /// The words, bottles and poems gathered so far.
     @Published private(set) var voyage: Voyage
+    /// True when the app should open on the composing page, for testing.
+    let opensComposing: Bool
+    private let magicOverride: Double?
 
     let scene: SeaScene
     private var random = SeededRandom(seed: UInt64.random(in: 0 ... UInt64.max))
@@ -28,6 +31,8 @@ final class SeaController: ObservableObject {
     init() {
         let settings = SeaSettings.fromLaunchArguments()
         voyage = SeaController.load()
+        opensComposing = settings.demoCompose
+        magicOverride = settings.magicOverride
         scene = SeaScene(settings: settings)
         isFishing = settings.startFishing
         scene.fishing = settings.startFishing
@@ -47,6 +52,32 @@ final class SeaController: ObservableObject {
             let bottle = BottleLibrary.firstVoyage[0]
             caught = Caught(bottle: bottle, newWords: bottle.words)
         }
+        if settings.demoCompose {
+            // Enough words to show the page in use.
+            for bottle in BottleLibrary.firstVoyage.prefix(4) {
+                voyage.keep(bottle)
+            }
+        }
+        shareMagic()
+    }
+
+    /// Keeps a composed poem. Each poem kept makes the world a little more magical.
+    func keepPoem(lines: [[String]], form: PoemForm) -> Bool {
+        guard Poetry.keep(lines: lines, form: form, in: &voyage) != nil else { return false }
+        save()
+        shareMagic()
+        return true
+    }
+
+    /// Tells the sea how magical it has become, and which of the voyager's words colour it.
+    private func shareMagic() {
+        var favourites = Magic.favouriteWords(for: voyage)
+        if favourites.isEmpty && magicOverride != nil {
+            // When previewing a magical sea with nothing written, borrow some colours.
+            favourites = ["tide", "lantern", "song", "home"]
+        }
+        scene.favouriteWords = favourites
+        scene.magic = magicOverride ?? Magic.level(for: voyage)
     }
 
     /// Called while the Sail button is held, and again when it is let go.

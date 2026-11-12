@@ -44,8 +44,23 @@ public struct Voyage: Equatable, Codable, Sendable {
     public var foundBottles: [String] = []
     /// How many empty bottles have come up.
     public var emptyBottles = 0
+    /// The poems the voyager has composed and kept.
+    public var poems: [Poem] = []
 
     public init() {}
+
+    private enum CodingKeys: String, CodingKey {
+        case vocabulary, foundBottles, emptyBottles, poems
+    }
+
+    /// Loads a saved voyage. Anything missing from an older save starts empty.
+    public init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        vocabulary = try values.decodeIfPresent([String].self, forKey: .vocabulary) ?? []
+        foundBottles = try values.decodeIfPresent([String].self, forKey: .foundBottles) ?? []
+        emptyBottles = try values.decodeIfPresent(Int.self, forKey: .emptyBottles) ?? 0
+        poems = try values.decodeIfPresent([Poem].self, forKey: .poems) ?? []
+    }
 
     /// Keeps a bottle: remembers it and adds its words. Returns the words that were new.
     @discardableResult

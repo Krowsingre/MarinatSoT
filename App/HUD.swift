@@ -288,7 +288,7 @@ struct CatchCard: View {
 /// A page reached from the top-right icons. Mostly placeholders for parts not built yet.
 struct PanelCard: View {
     let panel: Panel
-    let words: [String]
+    let poems: [Poem]
     let close: () -> Void
 
     var body: some View {
@@ -299,14 +299,22 @@ struct PanelCard: View {
             VStack(spacing: 12) {
                 Text(panel.title)
                     .font(.system(size: 28, weight: .semibold, design: .serif))
-                if panel == .poetry && !words.isEmpty {
-                    Text("Words found so far")
+                if panel == .journal && !poems.isEmpty {
+                    Text("Marin's poems")
                         .font(.system(size: 12, weight: .semibold, design: .serif))
-                    Text(words.joined(separator: "  \u{00B7}  "))
-                        .font(.system(size: 16, design: .serif))
-                        .multilineTextAlignment(.center)
+                    ScrollView {
+                        VStack(spacing: 10) {
+                            ForEach(poems.reversed()) { poem in
+                                Text(poem.text)
+                                    .font(.system(size: 16, design: .serif))
+                                    .italic()
+                                    .multilineTextAlignment(.center)
+                            }
+                        }
                         .frame(maxWidth: 440)
-                    Text("Composing is not built yet.")
+                    }
+                    .frame(maxHeight: 150)
+                    Text("Her father's pages are not built yet.")
                         .font(.system(size: 13, design: .serif))
                 } else {
                     Text("This part of the game is not built yet.")

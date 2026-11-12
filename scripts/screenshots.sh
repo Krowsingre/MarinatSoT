@@ -63,6 +63,10 @@ shoot 5-fishing-night  -seaHour 22   -seaWeather clear -seaFishing 1 -seaWorldX 
 shoot 6-storm          -seaHour 15   -seaWeather storm
 shoot 7-bottle-on-line -seaHour 11   -seaWeather clear -seaFishing 1 -seaBite 1
 shoot 8-bottle-opened  -seaHour 11   -seaWeather clear -seaCatch 1
+shoot 9-composing      -seaHour 11   -seaWeather clear -seaCompose 1
+shoot 10-magic-half    -seaHour 11   -seaWeather clear -seaFishing 1 -seaMagic 0.5
+shoot 11-magic-full    -seaHour 11   -seaWeather clear -seaFishing 1 -seaMagic 1
+shoot 12-magic-night   -seaHour 22   -seaWeather clear -seaMagic 1
 
 xcrun simctl shutdown "$UDID" || true
 ls -la "$OUT"

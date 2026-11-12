@@ -46,6 +46,22 @@ final class SeaScene: SKScene {
     var onBite: (() -> Void)?
     /// Told when a hooked bottle has been reeled up to the boat.
     var onCatch: (() -> Void)?
+    /// How magical the world has become through the voyager's poetry: 0 ordinary, 1 fully magical.
+    var magic = 0.0 {
+        didSet {
+            if abs(magic - oldValue) > 0.0005 {
+                underwaterSpot = nil
+            }
+        }
+    }
+    /// The words the voyager uses most. The magic takes its colours from them.
+    var favouriteWords: [String] = [] {
+        didSet {
+            if favouriteWords != oldValue {
+                underwaterSpot = nil
+            }
+        }
+    }
 
     // MARK: - State
 
@@ -81,6 +97,8 @@ final class SeaScene: SKScene {
     private var bite = Bite.none
     private var biteRandom = SeededRandom(seed: UInt64.random(in: 0 ... UInt64.max))
     private var driftStart = CGPoint.zero
+    /// The magic as currently shown; it eases toward `magic`.
+    private var shownMagic = 0.0
 
     // MARK: - Nodes
 
@@ -111,6 +129,8 @@ final class SeaScene: SKScene {
     private let line = SKShapeNode()
     private let hook = SKShapeNode(circleOfRadius: 2)
     private let bottle = BottleNode()
+    private let aurora = SKNode()
+    private let motes = SKEmitterNode()
     private let rain = SKEmitterNode()
     private let flash = SKSpriteNode(color: .white, size: CGSize(width: 10, height: 10))
     private let grain = SKSpriteNode(texture: Paint.paperGrain())
@@ -177,6 +197,11 @@ final class SeaScene: SKScene {
                   colour: UIColor(red: 0.93, green: 0.94, blue: 0.98, alpha: 1))
         moon.zPosition = 2
         world.addChild(moon)
+
+        // Ribbons of light in the sky, which appear as the world grows magical.
+        aurora.zPosition = 3
+        aurora.alpha = 0
+        world.addChild(aurora)
 
         cloudLayer.zPosition = 5
         world.addChild(cloudLayer)
@@ -255,6 +280,21 @@ final class SeaScene: SKScene {
         bottle.isHidden = true
         world.addChild(bottle)
 
+        // Drifting points of light over the water, which gather as the world grows magical.
+        motes.particleTexture = Paint.softGlow(diameter: 16)
+        motes.particleBirthRate = 0
+        motes.particleLifetime = 5
+        motes.particleLifetimeRange = 2
+        motes.emissionAngle = .pi / 2
+        motes.emissionAngleRange = .pi
+        motes.particleAlpha = 0
+        motes.particleAlphaSequence = SKKeyframeSequence(keyframeValues: [0, 0.9, 0.9, 0], times: [0, 0.2, 0.7, 1])
+        motes.particleColor = UIColor(red: 1.0, green: 0.90, blue: 0.62, alpha: 1)
+        motes.particleColorBlendFactor = 1
+        motes.particleBlendMode = .add
+        motes.zPosition = 52
+        world.addChild(motes)
+
         // Fixed to the screen: rain, lightning, and the paper wash over everything.
         rain.particleTexture = Paint.raindrop()
         rain.particleBirthRate = 0
@@ -322,6 +362,14 @@ final class SeaScene: SKScene {
 
         boat.setScale(1.9 * k)
         bottle.setScale(1.25 * k)
+
+        motes.position = CGPoint(x: width / 2, y: boatLineY * 0.55)
+        motes.particlePositionRange = CGVector(dx: width, dy: boatLineY * 1.5)
+        motes.particleSpeed = 7 * k
+        motes.particleSpeedRange = 6 * k
+        motes.particleScale = 0.42 * k
+        motes.particleScaleRange = 0.25 * k
+        layoutAurora()
         boat.position = CGPoint(x: width * 0.36, y: boatLineY)
 
         spray.particleSpeed = 70 * k
@@ -350,6 +398,39 @@ final class SeaScene: SKScene {
         layoutStars()
         layoutClouds()
         lastPaint = -100
+    }
+
+    private func layoutAurora() {
+        aurora.removeAllChildren()
+        let skyHeight = size.height - horizonY
+        let ribbons: [(colour: UIColor, level: CGFloat, thickness: CGFloat, phase: CGFloat)] = [
+            (UIColor(red: 0.42, green: 1.0, blue: 0.74, alpha: 1), 0.74, 0.20, 0.0),
+            (UIColor(red: 0.72, green: 0.58, blue: 1.0, alpha: 1), 0.56, 0.16, 2.1)
+        ]
+        for ribbon in ribbons {
+            var top: [CGPoint] = []
+            var bottom: [CGPoint] = []
+            var x: CGFloat = -20
+            while x <= size.width + 20 {
+                let wave = sin(x / (150 * k) + ribbon.phase) * skyHeight * 0.07
+                    + sin(x / (61 * k) + ribbon.phase * 2) * skyHeight * 0.025
+                let centre = horizonY + skyHeight * ribbon.level + wave
+                top.append(CGPoint(x: x, y: centre + skyHeight * ribbon.thickness / 2))
+                bottom.append(CGPoint(x: x, y: centre - skyHeight * ribbon.thickness / 2))
+                x += 16
+            }
+            let shape = SKShapeNode(path: SceneryBuilder.polygon(top + bottom.reversed()))
+            shape.fillColor = ribbon.colour
+            shape.strokeColor = .clear
+            shape.lineWidth = 0
+            shape.alpha = 0.34
+            shape.blendMode = .add
+            shape.run(.repeatForever(.sequence([
+                .fadeAlpha(to: 0.18, duration: 4.5),
+                .fadeAlpha(to: 0.38, duration: 4.5)
+            ])))
+            aurora.addChild(shape)
+        }
     }
 
     private func layoutStars() {
@@ -424,6 +505,7 @@ final class SeaScene: SKScene {
         let hour = currentHour(elapsed: elapsed)
         let daylight = SeaClock.daylight(atHour: hour)
         easeWeather(step: step)
+        shownMagic += (magic - shownMagic) * min(step * 0.8, 1)
         sail(step: step)
         easeFishing(step: step)
 
@@ -510,8 +592,15 @@ final class SeaScene: SKScene {
     private func buildUnderwater(spot: Int) {
         underwater?.node.removeFromParent()
         let seed = SeededRandom.mix(Coast.defaultSeed, 0xDEE9, UInt64(bitPattern: Int64(spot)))
+        var colours: [RGB] = []
+        for word in favouriteWords {
+            if let colour = SceneryBuilder.colour(forWord: word) {
+                colours.append(colour)
+            }
+        }
         let scenery = SceneryBuilder.underwater(seed: seed, width: size.width,
-                                                height: boatLineY - floorY, scale: k)
+                                                height: boatLineY - floorY, scale: k,
+                                                magic: magic, colours: colours)
         scenery.node.position = CGPoint(x: 0, y: floorY)
         scenery.node.zPosition = 2
         scenery.apply(underwaterLight())
@@ -570,6 +659,10 @@ final class SeaScene: SKScene {
         }
 
         boat.setLight(tint: tint, darkness: 1 - daylight)
+
+        // The magic shows most strongly in the dark, and fades behind cloud.
+        aurora.alpha = CGFloat(shownMagic * (0.18 + 0.82 * (1 - daylight)) * (1 - cloudCover * 0.7))
+        motes.particleBirthRate = CGFloat(shownMagic * 16)
         rain.particleBirthRate = CGFloat(rainAmount * 420)
     }
 
