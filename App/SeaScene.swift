@@ -55,7 +55,7 @@ final class SeaScene: SKScene {
 
     /// How far the boat has sailed, in points.
     private var worldX: Double
-    private var speed = 0.0
+    private var boatSpeed = 0.0
     /// 0 while sailing, 1 once the line is down; eases between the two.
     private var fishAmount: Double
 
@@ -449,13 +449,13 @@ final class SeaScene: SKScene {
     private func sail(step: Double) {
         let scale = Double(k)
         let top = (wantsSail && !fishing) ? 150 * scale : 0
-        if speed < top {
-            speed = min(top, speed + 130 * scale * step)
+        if boatSpeed < top {
+            boatSpeed = min(top, boatSpeed + 130 * scale * step)
         } else {
-            speed = max(top, speed - 170 * scale * step)
+            boatSpeed = max(top, boatSpeed - 170 * scale * step)
         }
-        worldX += speed * step
-        spray.particleBirthRate = CGFloat(speed / (150 * scale)) * 70
+        worldX += boatSpeed * step
+        spray.particleBirthRate = CGFloat(boatSpeed / (150 * scale)) * 70
     }
 
     private func easeFishing(step: Double) {
@@ -569,7 +569,7 @@ final class SeaScene: SKScene {
     private func moveClouds(step: Double) {
         let wind = CGFloat(1 + storminess * 2.5)
         // Clouds drift on the wind and slide back a little as the boat sails on.
-        let drift = CGFloat(step) - CGFloat(speed * step) * 0.04 / 6
+        let drift = CGFloat(step) - CGFloat(boatSpeed * step) * 0.04 / 6
         for cloud in clouds {
             var x = cloud.node.position.x + cloud.speed * wind * drift
             if x - cloud.width / 2 > size.width {
@@ -672,7 +672,7 @@ final class SeaScene: SKScene {
         let behind = waveHeight(front, at: x - reach, time: time)
         boat.position.y = boatLineY + lift * 0.8
         // The boat rides the swell, and leans back a little when under way.
-        let lean = CGFloat(speed / (150 * Double(k))) * 0.035
+        let lean = CGFloat(boatSpeed / (150 * Double(k))) * 0.035
         boat.zRotation = atan((ahead - behind) / (reach * 2)) * 0.7 + lean
 
         spray.position = CGPoint(x: x + 44 * 1.9 * k, y: boat.position.y - 2 * k)
