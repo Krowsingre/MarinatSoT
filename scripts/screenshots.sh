@@ -4,7 +4,7 @@
 set -euo pipefail
 
 APP="build/Build/Products/Debug-iphonesimulator/Marin.app"
-BUNDLE="com.krowsingre.marin"
+BUNDLE="com.krowsingre.MarinatSoT"
 OUT="out/screenshots"
 mkdir -p "$OUT"
 
