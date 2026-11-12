@@ -42,6 +42,10 @@ final class SeaScene: SKScene {
     var fishing = false
     /// Told whenever the part of the day changes.
     var onPhaseChange: ((DayPhase) -> Void)?
+    /// Told when a bottle has drifted onto the line.
+    var onBite: (() -> Void)?
+    /// Told when a hooked bottle has been reeled up to the boat.
+    var onCatch: (() -> Void)?
 
     // MARK: - State
 
@@ -66,6 +70,17 @@ final class SeaScene: SKScene {
     private var weatherReady = false
     private var flashCountdown = 2.0
     private var light = Light(tint: RGB(1, 1, 1), haze: RGB(1, 1, 1))
+
+    /// Where a cast has got to: nothing yet, waiting, a bottle drifting in, or a bottle on the line.
+    private enum Bite {
+        case none
+        case waiting(Double)
+        case drifting(Double)
+        case hooked
+    }
+    private var bite = Bite.none
+    private var biteRandom = SeededRandom(seed: UInt64.random(in: 0 ... UInt64.max))
+    private var driftStart = CGPoint.zero
 
     // MARK: - Nodes
 
@@ -95,6 +110,7 @@ final class SeaScene: SKScene {
     private var underwaterSpot: Int?
     private let line = SKShapeNode()
     private let hook = SKShapeNode(circleOfRadius: 2)
+    private let bottle = BottleNode()
     private let rain = SKEmitterNode()
     private let flash = SKSpriteNode(color: .white, size: CGSize(width: 10, height: 10))
     private let grain = SKSpriteNode(texture: Paint.paperGrain())
@@ -235,6 +251,10 @@ final class SeaScene: SKScene {
         hook.zPosition = 50
         world.addChild(hook)
 
+        bottle.zPosition = 51
+        bottle.isHidden = true
+        world.addChild(bottle)
+
         // Fixed to the screen: rain, lightning, and the paper wash over everything.
         rain.particleTexture = Paint.raindrop()
         rain.particleBirthRate = 0
@@ -301,6 +321,7 @@ final class SeaScene: SKScene {
         coastStretches = [:]
 
         boat.setScale(1.9 * k)
+        bottle.setScale(1.25 * k)
         boat.position = CGPoint(x: width * 0.36, y: boatLineY)
 
         spray.particleSpeed = 70 * k
@@ -417,6 +438,7 @@ final class SeaScene: SKScene {
         refreshStretches()
         moveWaves(time: elapsed)
         moveBoat(time: elapsed)
+        stepBite(step: step, time: elapsed)
         lightning(step: step)
 
         let phase = SeaClock.phase(atHour: hour)
@@ -686,6 +708,63 @@ final class SeaScene: SKScene {
         path.addQuadCurve(to: end, control: CGPoint(x: tip.x + 3, y: (tip.y + end.y) / 2))
         line.path = path
         hook.position = end
+    }
+
+    /// Where a hooked bottle hangs: just under the end of the line.
+    private func bottleRest() -> CGPoint {
+        CGPoint(x: hook.position.x, y: hook.position.y - 12 * k)
+    }
+
+    /// Brings a bottle to the line once it has been down a little while, and lands it when reeled in.
+    /// There is nothing to get wrong: cast, wait, and something comes.
+    private func stepBite(step: Double, time: Double) {
+        if fishing {
+            guard fishAmount > 0.97 else { return }
+            switch bite {
+            case .none:
+                let wait = settings.quickBite ? 0.4 : Fishing.biteDelay(random: &biteRandom)
+                bite = .waiting(wait)
+            case .waiting(let left):
+                if left - step <= 0 {
+                    driftStart = CGPoint(x: size.width + 40 * k, y: hook.position.y + 30 * k)
+                    bottle.position = driftStart
+                    bottle.isHidden = false
+                    bite = .drifting(0)
+                } else {
+                    bite = .waiting(left - step)
+                }
+            case .drifting(let progress):
+                let next = min(progress + step / (settings.quickBite ? 0.8 : 2.6), 1)
+                let eased = CGFloat(next * next * (3 - 2 * next))
+                let target = bottleRest()
+                let bob = CGFloat(sin(time * 2)) * 3 * k * (1 - eased)
+                bottle.position = CGPoint(x: driftStart.x + (target.x - driftStart.x) * eased,
+                                          y: driftStart.y + (target.y - driftStart.y) * eased + bob)
+                if next >= 1 {
+                    bite = .hooked
+                    onBite?()
+                } else {
+                    bite = .drifting(next)
+                }
+            case .hooked:
+                bottle.position = bottleRest()
+            }
+        } else {
+            switch bite {
+            case .hooked:
+                bottle.position = bottleRest()
+                if fishAmount < 0.06 {
+                    bite = .none
+                    bottle.isHidden = true
+                    onCatch?()
+                }
+            case .none:
+                break
+            case .waiting, .drifting:
+                bite = .none
+                bottle.isHidden = true
+            }
+        }
     }
 
     private func lightning(step: Double) {

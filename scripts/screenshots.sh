@@ -61,6 +61,8 @@ shoot 3-farther-on     -seaHour 13   -seaWeather cloudy -seaWorldX 5200
 shoot 4-fishing-day    -seaHour 11   -seaWeather clear -seaFishing 1
 shoot 5-fishing-night  -seaHour 22   -seaWeather clear -seaFishing 1 -seaWorldX 2400
 shoot 6-storm          -seaHour 15   -seaWeather storm
+shoot 7-bottle-on-line -seaHour 11   -seaWeather clear -seaFishing 1 -seaBite 1
+shoot 8-bottle-opened  -seaHour 11   -seaWeather clear -seaCatch 1
 
 xcrun simctl shutdown "$UDID" || true
 ls -la "$OUT"

@@ -1,0 +1,127 @@
+name: TestFlight
+
+# Builds a signed copy of the app and uploads it to TestFlight.
+#
+# Runs when a tag starting with "testflight-" is pushed, or when started by hand from the
+# Actions tab. It needs four repository secrets (Settings > Secrets and variables > Actions):
+#
+#   APPLE_TEAM_ID        The 10-character Team ID from developer.apple.com > Membership.
+#   ASC_KEY_ID           The Key ID of an App Store Connect API key.
+#   ASC_ISSUER_ID        The Issuer ID shown above the list of API keys.
+#   ASC_PRIVATE_KEY      The whole contents of the downloaded AuthKey_XXXXXXXXXX.p8 file.
+
+on:
+  push:
+    tags:
+      - "testflight-*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: testflight
+  cancel-in-progress: false
+
+jobs:
+  upload:
+    runs-on: macos-latest
+    timeout-minutes: 45
+    env:
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check the secrets are present
+        run: |
+          mkdir -p out
+          missing=""
+          [ -n "$APPLE_TEAM_ID" ] || missing="$missing APPLE_TEAM_ID"
+          [ -n "$ASC_KEY_ID" ] || missing="$missing ASC_KEY_ID"
+          [ -n "$ASC_ISSUER_ID" ] || missing="$missing ASC_ISSUER_ID"
+          [ -n "$ASC_PRIVATE_KEY" ] || missing="$missing ASC_PRIVATE_KEY"
+          if [ -n "$missing" ]; then
+            echo "Missing repository secrets:$missing" | tee out/testflight.log
+            exit 1
+          fi
+
+      - name: Generate the Xcode project
+        run: |
+          brew install xcodegen
+          xcodegen generate
+
+      - name: Put the API key where Xcode can read it
+        run: |
+          mkdir -p "$RUNNER_TEMP/keys"
+          printf '%s' "$ASC_PRIVATE_KEY" > "$RUNNER_TEMP/keys/AuthKey.p8"
+
+      - name: Archive
+        run: |
+          set -o pipefail
+          xcodebuild archive \
+            -project Marin.xcodeproj \
+            -scheme Marin \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/Marin.xcarchive" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$RUNNER_TEMP/keys/AuthKey.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
+            CODE_SIGN_STYLE=Automatic \
+            CURRENT_PROJECT_VERSION="${{ github.run_number }}" \
+            2>&1 | tee "$RUNNER_TEMP/archive-full.log" | grep -E "error:|warning: .*(sign|provision)|ARCHIVE (SUCCEEDED|FAILED)|\*\* " | tee -a out/testflight.log
+
+      - name: Upload to TestFlight
+        run: |
+          set -o pipefail
+          cat > "$RUNNER_TEMP/ExportOptions.plist" <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>upload</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>teamID</key><string>${APPLE_TEAM_ID}</string>
+            <key>uploadSymbols</key><true/>
+            <key>manageAppVersionAndBuildNumber</key><false/>
+          </dict>
+          </plist>
+          EOF
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/Marin.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
+            -exportPath "$RUNNER_TEMP/export" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$RUNNER_TEMP/keys/AuthKey.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            2>&1 | tee "$RUNNER_TEMP/export-full.log" | grep -iE "error|EXPORT (SUCCEEDED|FAILED)|upload|\*\* " | tee -a out/testflight.log
+
+      - name: Remove the API key
+        if: always()
+        run: rm -rf "$RUNNER_TEMP/keys"
+
+      # Keeps a short, scrubbed summary on a side branch so the result can be read without signing in.
+      - name: Publish the result to the testflight-results branch
+        if: always()
+        run: |
+          mkdir -p out
+          touch out/testflight.log
+          for secret in "$APPLE_TEAM_ID" "$ASC_KEY_ID" "$ASC_ISSUER_ID"; do
+            if [ -n "$secret" ]; then
+              sed -i '' "s/${secret}/[hidden]/g" out/testflight.log
+            fi
+          done
+          echo "${{ github.sha }} build ${{ github.run_number }} ${{ job.status }}" > out/status.txt
+          cd out
+          rm -rf .git
+          git init -q -b testflight-results
+          git add status.txt testflight.log
+          git -c user.name="ci" -c user.email="ci@users.noreply.github.com" commit -q -m "TestFlight result for ${{ github.sha }}"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" testflight-results

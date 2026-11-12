@@ -15,6 +15,10 @@ struct SeaSettings {
     var startFishing = false
     /// Start with the boat already sailing.
     var startSailing = false
+    /// Bring a bottle to the line almost at once.
+    var quickBite = false
+    /// Open with a landed bottle on screen.
+    var demoCatch = false
 
     static func fromLaunchArguments(_ defaults: UserDefaults = .standard) -> SeaSettings {
         var settings = SeaSettings()
@@ -32,6 +36,8 @@ struct SeaSettings {
         }
         settings.startFishing = defaults.string(forKey: "seaFishing") == "1"
         settings.startSailing = defaults.string(forKey: "seaSailing") == "1"
+        settings.quickBite = defaults.string(forKey: "seaBite") == "1"
+        settings.demoCatch = defaults.string(forKey: "seaCatch") == "1"
         return settings
     }
 }

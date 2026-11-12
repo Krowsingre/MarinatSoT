@@ -175,7 +175,8 @@ private struct CastButton: View {
         Button {
             controller.toggleFishing()
         } label: {
-            Pill(title: controller.isFishing ? "Reel In" : "Cast Line", subtitle: nil) {
+            Pill(title: controller.isFishing ? "Reel In" : "Cast Line",
+                 subtitle: controller.hasBite ? "Something is on the line" : nil) {
                 HookIcon()
                     .stroke(Parchment.ink, style: StrokeStyle(lineWidth: 2.4, lineCap: .round, lineJoin: .round))
                     .frame(width: 22, height: 34)
@@ -228,9 +229,66 @@ private struct QuillIcon: View {
     }
 }
 
-/// A placeholder page for a part of the game that is not built yet.
+/// The page shown when a bottle is landed: its letter and the words it gives.
+struct CatchCard: View {
+    let caught: Caught
+    let close: () -> Void
+
+    var body: some View {
+        ZStack {
+            Color.black.opacity(0.25)
+                .ignoresSafeArea()
+            VStack(spacing: 10) {
+                Text(caught.bottle.isEmpty ? "An empty bottle" : "A bottle from the sea")
+                    .font(.system(size: 24, weight: .semibold, design: .serif))
+                if caught.bottle.isEmpty {
+                    Text("Nothing inside but a blank page.")
+                        .font(.system(size: 16, design: .serif))
+                        .italic()
+                    Text("Free writing will go here once it is built.")
+                        .font(.system(size: 13, design: .serif))
+                } else {
+                    Text("\u{201C}\(caught.bottle.letter)\u{201D}")
+                        .font(.system(size: 17, design: .serif))
+                        .italic()
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: 380)
+                    if !caught.newWords.isEmpty {
+                        Text("New words")
+                            .font(.system(size: 12, weight: .semibold, design: .serif))
+                            .padding(.top, 4)
+                        HStack(spacing: 8) {
+                            ForEach(caught.newWords, id: \.self) { word in
+                                Text(word)
+                                    .font(.system(size: 17, weight: .medium, design: .serif))
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 5)
+                                    .background(Capsule().fill(Parchment.wash.opacity(0.28)))
+                            }
+                        }
+                    }
+                }
+                Button("Keep", action: close)
+                    .font(.system(size: 17, weight: .semibold, design: .serif))
+                    .padding(.top, 8)
+            }
+            .foregroundStyle(Parchment.ink)
+            .padding(.horizontal, 40)
+            .padding(.vertical, 24)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Parchment.fill)
+                    .overlay(RoundedRectangle(cornerRadius: 16).stroke(Parchment.edge.opacity(0.55), lineWidth: 1.4))
+                    .shadow(color: .black.opacity(0.25), radius: 8, y: 3)
+            )
+        }
+    }
+}
+
+/// A page reached from the top-right icons. Mostly placeholders for parts not built yet.
 struct PanelCard: View {
     let panel: Panel
+    let words: [String]
     let close: () -> Void
 
     var body: some View {
@@ -241,8 +299,19 @@ struct PanelCard: View {
             VStack(spacing: 12) {
                 Text(panel.title)
                     .font(.system(size: 28, weight: .semibold, design: .serif))
-                Text("This part of the game is not built yet.")
-                    .font(.system(size: 15, design: .serif))
+                if panel == .poetry && !words.isEmpty {
+                    Text("Words found so far")
+                        .font(.system(size: 12, weight: .semibold, design: .serif))
+                    Text(words.joined(separator: "  \u{00B7}  "))
+                        .font(.system(size: 16, design: .serif))
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: 440)
+                    Text("Composing is not built yet.")
+                        .font(.system(size: 13, design: .serif))
+                } else {
+                    Text("This part of the game is not built yet.")
+                        .font(.system(size: 15, design: .serif))
+                }
                 Button("Close", action: close)
                     .font(.system(size: 16, weight: .semibold, design: .serif))
                     .padding(.top, 6)

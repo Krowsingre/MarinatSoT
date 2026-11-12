@@ -23,8 +23,14 @@ struct GameView: View {
             HUD(controller: controller, panel: $panel)
 
             if let panel {
-                PanelCard(panel: panel) {
+                PanelCard(panel: panel, words: controller.voyage.vocabulary) {
                     self.panel = nil
+                }
+            }
+
+            if let caught = controller.caught {
+                CatchCard(caught: caught) {
+                    controller.caught = nil
                 }
             }
         }
