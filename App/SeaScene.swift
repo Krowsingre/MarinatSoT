@@ -27,6 +27,7 @@ final class SeaScene: SKScene {
 
     private let sky = SKSpriteNode()
     private let starLayer = SKNode()
+    private let starTexture = Paint.softGlow(diameter: 32)
     private let sun = SKNode()
     private let moon = SKNode()
     private let cloudLayer = SKNode()
@@ -197,8 +198,9 @@ final class SeaScene: SKScene {
         starLayer.removeAllChildren()
         let skyHeight = size.height - waterline
         for _ in 0 ..< 110 {
-            let side = CGFloat.random(in: 1.0 ... 2.6)
-            let star = SKSpriteNode(color: .white, size: CGSize(width: side, height: side))
+            let side = CGFloat.random(in: 2.5 ... 6.0)
+            let star = SKSpriteNode(texture: starTexture)
+            star.size = CGSize(width: side, height: side)
             star.position = CGPoint(
                 x: CGFloat.random(in: 0 ... size.width),
                 y: waterline + 24 + CGFloat.random(in: 0 ... 1) * (skyHeight - 24)
@@ -237,11 +239,17 @@ final class SeaScene: SKScene {
 
     private func cloudPath(width w: CGFloat) -> CGPath {
         let h = w * 0.30
-        let path = CGMutablePath()
-        path.addEllipse(in: CGRect(x: -w * 0.50, y: -h * 0.35, width: w, height: h * 0.70))
-        path.addEllipse(in: CGRect(x: -w * 0.34, y: -h * 0.10, width: w * 0.38, height: h * 0.90))
-        path.addEllipse(in: CGRect(x: -w * 0.08, y: 0, width: w * 0.42, height: h * 1.05))
-        path.addEllipse(in: CGRect(x: w * 0.14, y: -h * 0.15, width: w * 0.30, height: h * 0.75))
+        // The puffs are merged into one outline so that overlaps do not show as holes.
+        let puffs = [
+            CGRect(x: -w * 0.50, y: -h * 0.35, width: w, height: h * 0.70),
+            CGRect(x: -w * 0.34, y: -h * 0.10, width: w * 0.38, height: h * 0.90),
+            CGRect(x: -w * 0.08, y: 0, width: w * 0.42, height: h * 1.05),
+            CGRect(x: w * 0.14, y: -h * 0.15, width: w * 0.30, height: h * 0.75)
+        ]
+        var path = CGPath(ellipseIn: puffs[0], transform: nil)
+        for puff in puffs.dropFirst() {
+            path = path.union(CGPath(ellipseIn: puff, transform: nil))
+        }
         return path
     }
 
@@ -251,12 +259,13 @@ final class SeaScene: SKScene {
         let top = waterline - 110
         guard top > 60 else { return }
         for _ in 0 ..< 5 {
-            let body = CGMutablePath()
-            body.addEllipse(in: CGRect(x: -14, y: -5, width: 28, height: 10))
-            body.move(to: CGPoint(x: -11, y: 0))
-            body.addLine(to: CGPoint(x: -22, y: 6))
-            body.addLine(to: CGPoint(x: -22, y: -6))
-            body.closeSubpath()
+            let tail = CGMutablePath()
+            tail.move(to: CGPoint(x: -11, y: 0))
+            tail.addLine(to: CGPoint(x: -22, y: 6))
+            tail.addLine(to: CGPoint(x: -22, y: -6))
+            tail.closeSubpath()
+            let body = CGPath(ellipseIn: CGRect(x: -14, y: -5, width: 28, height: 10), transform: nil)
+                .union(tail)
 
             let node = SKShapeNode(path: body)
             node.strokeColor = .clear
