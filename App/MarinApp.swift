@@ -5,19 +5,30 @@ import SpriteKit
 struct MarinApp: App {
     var body: some Scene {
         WindowGroup {
-            SeaView()
+            GameView()
         }
     }
 }
 
-/// The main screen: the sea, filling the whole phone.
-struct SeaView: View {
-    @State private var scene = SeaScene(settings: SeaSettings.fromLaunchArguments())
+/// The main screen: the sea, with the controls laid over it.
+struct GameView: View {
+    @StateObject private var controller = SeaController()
+    @State private var panel: Panel?
 
     var body: some View {
-        SpriteView(scene: scene)
-            .ignoresSafeArea()
-            .statusBarHidden(true)
-            .persistentSystemOverlays(.hidden)
+        ZStack {
+            SpriteView(scene: controller.scene)
+                .ignoresSafeArea()
+
+            HUD(controller: controller, panel: $panel)
+
+            if let panel {
+                PanelCard(panel: panel) {
+                    self.panel = nil
+                }
+            }
+        }
+        .statusBarHidden(true)
+        .persistentSystemOverlays(.hidden)
     }
 }

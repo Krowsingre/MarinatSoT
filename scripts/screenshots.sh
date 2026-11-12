@@ -42,17 +42,25 @@ shoot() {
   xcrun simctl launch "$UDID" "$BUNDLE" "$@"
   sleep 9
   xcrun simctl io "$UDID" screenshot "$OUT/$name.png"
+  # The game is played in landscape. If the picture comes out upright, turn it on its side.
+  local w h
+  w=$(sips -g pixelWidth "$OUT/$name.png" | awk '/pixelWidth/ {print $2}')
+  h=$(sips -g pixelHeight "$OUT/$name.png" | awk '/pixelHeight/ {print $2}')
+  if [ "$h" -gt "$w" ]; then
+    sips -r "${ROTATE:-90}" "$OUT/$name.png" >/dev/null
+  fi
 }
 
 # The first launch is slow, so warm the app up once before taking pictures.
 xcrun simctl launch "$UDID" "$BUNDLE" -seaHour 12 -seaWeather clear
 sleep 15
 
-shoot 1-dawn  -seaHour 6    -seaWeather clear
-shoot 2-noon  -seaHour 12   -seaWeather clear
-shoot 3-dusk  -seaHour 18.8 -seaWeather cloudy
-shoot 4-night -seaHour 23   -seaWeather clear
-shoot 5-storm -seaHour 15   -seaWeather storm
+shoot 1-sailing-day    -seaHour 10   -seaWeather clear
+shoot 2-under-way-dusk -seaHour 18.6 -seaWeather clear -seaSailing 1
+shoot 3-farther-on     -seaHour 13   -seaWeather cloudy -seaWorldX 5200
+shoot 4-fishing-day    -seaHour 11   -seaWeather clear -seaFishing 1
+shoot 5-fishing-night  -seaHour 22   -seaWeather clear -seaFishing 1 -seaWorldX 2400
+shoot 6-storm          -seaHour 15   -seaWeather storm
 
 xcrun simctl shutdown "$UDID" || true
 ls -la "$OUT"

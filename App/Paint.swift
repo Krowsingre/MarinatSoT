@@ -59,6 +59,29 @@ enum Paint {
         return SKTexture(image: image)
     }
 
+    /// A soft mottled wash, laid over the whole picture to give it the unevenness of paint on paper.
+    static func paperGrain() -> SKTexture {
+        let columns = 96
+        let rows = 54
+        let size = CGSize(width: columns, height: rows)
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1
+        format.opaque = true
+        var random = SeededRandom(seed: 0x9A9E_4)
+        let image = UIGraphicsImageRenderer(size: size, format: format).image { context in
+            for row in 0 ..< rows {
+                for column in 0 ..< columns {
+                    let shade = CGFloat(random.range(0.86, 1.0))
+                    UIColor(white: shade, alpha: 1).setFill()
+                    context.fill(CGRect(x: column, y: row, width: 1, height: 1))
+                }
+            }
+        }
+        let texture = SKTexture(image: image)
+        texture.filteringMode = .linear
+        return texture
+    }
+
     /// One streak of rain.
     static func raindrop() -> SKTexture {
         let size = CGSize(width: 2, height: 16)

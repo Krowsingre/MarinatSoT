@@ -21,6 +21,11 @@ public struct RGB: Equatable, Sendable {
         RGB(r * factor, g * factor, b * factor)
     }
 
+    /// Tints this colour by another, channel by channel.
+    public func multiplied(by other: RGB) -> RGB {
+        RGB(r * other.r, g * other.g, b * other.b)
+    }
+
     /// The grey with the same brightness.
     public var grey: RGB {
         let v = r * 0.3 + g * 0.59 + b * 0.11
