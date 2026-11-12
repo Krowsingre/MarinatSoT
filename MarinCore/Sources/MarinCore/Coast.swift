@@ -102,7 +102,7 @@ public enum Coast {
                 kind: .mountain,
                 x: slot * mountainStretchWidth,
                 width: random.range(260, 460),
-                height: random.range(80, 170),
+                height: random.range(45, 100),
                 waterfalls: [],
                 detail: random.next()
             ))

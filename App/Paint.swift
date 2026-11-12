@@ -71,7 +71,7 @@ enum Paint {
         let image = UIGraphicsImageRenderer(size: size, format: format).image { context in
             for row in 0 ..< rows {
                 for column in 0 ..< columns {
-                    let shade = CGFloat(random.range(0.86, 1.0))
+                    let shade = CGFloat(random.range(0.95, 1.0))
                     UIColor(white: shade, alpha: 1).setFill()
                     context.fill(CGRect(x: column, y: row, width: 1, height: 1))
                 }

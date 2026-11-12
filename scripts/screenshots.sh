@@ -47,7 +47,7 @@ shoot() {
   w=$(sips -g pixelWidth "$OUT/$name.png" | awk '/pixelWidth/ {print $2}')
   h=$(sips -g pixelHeight "$OUT/$name.png" | awk '/pixelHeight/ {print $2}')
   if [ "$h" -gt "$w" ]; then
-    sips -r "${ROTATE:-90}" "$OUT/$name.png" >/dev/null
+    sips -r "${ROTATE:-270}" "$OUT/$name.png" >/dev/null
   fi
 }
 
