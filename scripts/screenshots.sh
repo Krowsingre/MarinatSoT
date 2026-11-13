@@ -55,8 +55,8 @@ shoot() {
 xcrun simctl launch "$UDID" "$BUNDLE" -seaHour 12 -seaWeather clear
 sleep 15
 
-HOME_SCREEN=1 shoot 0-home-dusk  -seaHour 18.4 -seaWeather clear
-HOME_SCREEN=1 shoot 0-home-night -seaHour 22   -seaWeather clear -seaMagic 0.6
+HOME_SCREEN=1 shoot 0-home-first-time -seaHour 18.4 -seaWeather clear
+HOME_SCREEN=1 shoot 0-home-returning -seaHour 18.4 -seaWeather clear -seaCompose 1
 shoot 1-sailing-day    -seaHour 10   -seaWeather clear
 shoot 2-under-way-dusk -seaHour 18.6 -seaWeather clear -seaSailing 1
 shoot 3-farther-on     -seaHour 13   -seaWeather cloudy -seaWorldX 5200
