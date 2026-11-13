@@ -1,0 +1,136 @@
+Building for debugging...
+[0/7] /Users/runner/work/MarinatSoT/MarinatSoT/MarinCore/.build/arm64-apple-macosx/debug/MarinCorePackageTests.derived/runner.swift
+[1/7] Write sources
+[4/7] Write swift-version-7974D3F7F03D5E95.txt
+[6/13] Emitting module MarinCore
+[7/15] Compiling MarinCore SeaClock.swift
+[8/15] Compiling MarinCore SeededRandom.swift
+[9/15] Compiling MarinCore SkyPalette.swift
+[10/15] Compiling MarinCore Weather.swift
+[11/15] Compiling MarinCore Bottles.swift
+[12/15] Compiling MarinCore Coast.swift
+[13/15] Compiling MarinCore Poetry.swift
+[14/19] Compiling MarinCoreTests BottleTests.swift
+[15/19] Compiling MarinCoreTests CoastTests.swift
+[16/19] Compiling MarinCoreTests PoetryTests.swift
+[17/19] Emitting module MarinCoreTests
+[18/20] Compiling MarinCoreTests SeaTests.swift
+[19/22] Compiling MarinCorePackageTests runner.swift
+[20/22] Emitting module MarinCorePackageTests
+[20/22] Write Objects.LinkFileList
+[21/22] Linking MarinCorePackageTests
+Build complete! (46.94s)
+Test Suite 'All tests' started at 2026-11-13 01:58:56.460.
+Test Suite 'MarinCorePackageTests.xctest' started at 2026-11-13 01:58:56.461.
+Test Suite 'BottleTests' started at 2026-11-13 01:58:56.461.
+Test Case '-[MarinCoreTests.BottleTests testAnEmptyBottleGivesNoWords]' started.
+Test Case '-[MarinCoreTests.BottleTests testAnEmptyBottleGivesNoWords]' passed (0.002 seconds).
+Test Case '-[MarinCoreTests.BottleTests testAVoyageCanBeSavedAndLoaded]' started.
+Test Case '-[MarinCoreTests.BottleTests testAVoyageCanBeSavedAndLoaded]' passed (0.001 seconds).
+Test Case '-[MarinCoreTests.BottleTests testBottlesComeInOrderAndEveryOneCanBeFound]' started.
+Test Case '-[MarinCoreTests.BottleTests testBottlesComeInOrderAndEveryOneCanBeFound]' passed (0.001 seconds).
+Test Case '-[MarinCoreTests.BottleTests testEmptyBottlesAreAReasonableShare]' started.
+Test Case '-[MarinCoreTests.BottleTests testEmptyBottlesAreAReasonableShare]' passed (0.027 seconds).
+Test Case '-[MarinCoreTests.BottleTests testKeepingABottleAddsItsWordsOnce]' started.
+Test Case '-[MarinCoreTests.BottleTests testKeepingABottleAddsItsWordsOnce]' passed (0.001 seconds).
+Test Case '-[MarinCoreTests.BottleTests testOnceEverythingIsFoundBottlesAreEmpty]' started.
+Test Case '-[MarinCoreTests.BottleTests testOnceEverythingIsFoundBottlesAreEmpty]' passed (0.001 seconds).
+Test Case '-[MarinCoreTests.BottleTests testTheFirstBottleIsNeverEmpty]' started.
+Test Case '-[MarinCoreTests.BottleTests testTheFirstBottleIsNeverEmpty]' passed (0.002 seconds).
+Test Case '-[MarinCoreTests.BottleTests testTheWaitForABiteIsShort]' started.
+Test Case '-[MarinCoreTests.BottleTests testTheWaitForABiteIsShort]' passed (0.000 seconds).
+Test Suite 'BottleTests' passed at 2026-11-13 01:58:56.498.
+	 Executed 8 tests, with 0 failures (0 unexpected) in 0.034 (0.036) seconds
+Test Suite 'CoastTests' started at 2026-11-13 01:58:56.498.
+Test Case '-[MarinCoreTests.CoastTests testDifferentSeedsGiveDifferentSeas]' started.
+Test Case '-[MarinCoreTests.CoastTests testDifferentSeedsGiveDifferentSeas]' passed (0.000 seconds).
+Test Case '-[MarinCoreTests.CoastTests testFeaturesSitInsideTheirStretch]' started.
+Test Case '-[MarinCoreTests.CoastTests testFeaturesSitInsideTheirStretch]' passed (0.001 seconds).
+Test Case '-[MarinCoreTests.CoastTests testHomeWatersHaveAnArchAndAVillage]' started.
+Test Case '-[MarinCoreTests.CoastTests testHomeWatersHaveAnArchAndAVillage]' passed (0.000 seconds).
+Test Case '-[MarinCoreTests.CoastTests testMountainsAreAlwaysPresent]' started.
+Test Case '-[MarinCoreTests.CoastTests testMountainsAreAlwaysPresent]' passed (0.000 seconds).
+Test Case '-[MarinCoreTests.CoastTests testSameStretchAlwaysLooksTheSame]' started.
+Test Case '-[MarinCoreTests.CoastTests testSameStretchAlwaysLooksTheSame]' passed (0.001 seconds).
+Test Case '-[MarinCoreTests.CoastTests testTheCoastVariesAsYouSail]' started.
+Test Case '-[MarinCoreTests.CoastTests testTheCoastVariesAsYouSail]' passed (0.002 seconds).
+Test Suite 'CoastTests' passed at 2026-11-13 01:58:56.504.
+	 Executed 6 tests, with 0 failures (0 unexpected) in 0.005 (0.006) seconds
+Test Suite 'MagicTests' started at 2026-11-13 01:58:56.504.
+Test Case '-[MarinCoreTests.MagicTests testAnOlderSaveWithoutPoemsStillLoads]' started.
+Test Case '-[MarinCoreTests.MagicTests testAnOlderSaveWithoutPoemsStillLoads]' passed (0.000 seconds).
+Test Case '-[MarinCoreTests.MagicTests testAnOrdinarySeaHasNoMagic]' started.
+Test Case '-[MarinCoreTests.MagicTests testAnOrdinarySeaHasNoMagic]' passed (0.000 seconds).
+Test Case '-[MarinCoreTests.MagicTests testMagicGrowsAsPoemsAccumulate]' started.
+Test Case '-[MarinCoreTests.MagicTests testMagicGrowsAsPoemsAccumulate]' passed (0.001 seconds).
+Test Case '-[MarinCoreTests.MagicTests testMagicNeverPassesFull]' started.
+Test Case '-[MarinCoreTests.MagicTests testMagicNeverPassesFull]' passed (0.002 seconds).
+Test Case '-[MarinCoreTests.MagicTests testNoSinglePoemIsEnough]' started.
+Test Case '-[MarinCoreTests.MagicTests testNoSinglePoemIsEnough]' passed (0.000 seconds).
+Test Case '-[MarinCoreTests.MagicTests testRepeatingTheSamePoemAddsNothing]' started.
+Test Case '-[MarinCoreTests.MagicTests testRepeatingTheSamePoemAddsNothing]' passed (0.001 seconds).
+Test Case '-[MarinCoreTests.MagicTests testTheMagicTakesItsCharacterFromTheVoyagersOwnWords]' started.
+Test Case '-[MarinCoreTests.MagicTests testTheMagicTakesItsCharacterFromTheVoyagersOwnWords]' passed (0.000 seconds).
+Test Suite 'MagicTests' passed at 2026-11-13 01:58:56.510.
+	 Executed 7 tests, with 0 failures (0 unexpected) in 0.005 (0.006) seconds
+Test Suite 'PoetryTests' started at 2026-11-13 01:58:56.510.
+Test Case '-[MarinCoreTests.PoetryTests testAnUnsoundPoemIsNotKept]' started.
+Test Case '-[MarinCoreTests.PoetryTests testAnUnsoundPoemIsNotKept]' passed (0.000 seconds).
+Test Case '-[MarinCoreTests.PoetryTests testASoundLineCanBeKept]' started.
+Test Case '-[MarinCoreTests.PoetryTests testASoundLineCanBeKept]' passed (0.000 seconds).
+Test Case '-[MarinCoreTests.PoetryTests testComposingStartsAtASingleLine]' started.
+Test Case '-[MarinCoreTests.PoetryTests testComposingStartsAtASingleLine]' passed (0.000 seconds).
+Test Case '-[MarinCoreTests.PoetryTests testLongerFormsOpenWithWordsAndPractice]' started.
+Test Case '-[MarinCoreTests.PoetryTests testLongerFormsOpenWithWordsAndPractice]' passed (0.000 seconds).
+Test Case '-[MarinCoreTests.PoetryTests testProblemsAreCaught]' started.
+Test Case '-[MarinCoreTests.PoetryTests testProblemsAreCaught]' passed (0.000 seconds).
+Test Case '-[MarinCoreTests.PoetryTests testSmallWordsDoNotClashWithPlaceholderVocabulary]' started.
+Test Case '-[MarinCoreTests.PoetryTests testSmallWordsDoNotClashWithPlaceholderVocabulary]' passed (0.000 seconds).
+Test Suite 'PoetryTests' passed at 2026-11-13 01:58:56.513.
+	 Executed 6 tests, with 0 failures (0 unexpected) in 0.002 (0.002) seconds
+Test Suite 'SeaClockTests' started at 2026-11-13 01:58:56.513.
+Test Case '-[MarinCoreTests.SeaClockTests testDaylightStaysInRangeAndPeaksAtNoon]' started.
+Test Case '-[MarinCoreTests.SeaClockTests testDaylightStaysInRangeAndPeaksAtNoon]' passed (0.000 seconds).
+Test Case '-[MarinCoreTests.SeaClockTests testHourForDate]' started.
+Test Case '-[MarinCoreTests.SeaClockTests testHourForDate]' passed (0.000 seconds).
+Test Case '-[MarinCoreTests.SeaClockTests testHoursWrapAround]' started.
+Test Case '-[MarinCoreTests.SeaClockTests testHoursWrapAround]' passed (0.000 seconds).
+Test Case '-[MarinCoreTests.SeaClockTests testPhasesThroughTheDay]' started.
+Test Case '-[MarinCoreTests.SeaClockTests testPhasesThroughTheDay]' passed (0.000 seconds).
+Test Suite 'SeaClockTests' passed at 2026-11-13 01:58:56.514.
+	 Executed 4 tests, with 0 failures (0 unexpected) in 0.001 (0.001) seconds
+Test Suite 'SeededRandomTests' started at 2026-11-13 01:58:56.514.
+Test Case '-[MarinCoreTests.SeededRandomTests testSameSeedGivesSameSequence]' started.
+Test Case '-[MarinCoreTests.SeededRandomTests testSameSeedGivesSameSequence]' passed (0.000 seconds).
+Test Case '-[MarinCoreTests.SeededRandomTests testValuesStayInRange]' started.
+Test Case '-[MarinCoreTests.SeededRandomTests testValuesStayInRange]' passed (0.002 seconds).
+Test Suite 'SeededRandomTests' passed at 2026-11-13 01:58:56.516.
+	 Executed 2 tests, with 0 failures (0 unexpected) in 0.002 (0.002) seconds
+Test Suite 'SkyTests' started at 2026-11-13 01:58:56.516.
+Test Case '-[MarinCoreTests.SkyTests testNoonIsBrighterThanMidnightAndStarsComeOutAtNight]' started.
+Test Case '-[MarinCoreTests.SkyTests testNoonIsBrighterThanMidnightAndStarsComeOutAtNight]' passed (0.001 seconds).
+Test Case '-[MarinCoreTests.SkyTests testSkyIsContinuousAcrossMidnight]' started.
+Test Case '-[MarinCoreTests.SkyTests testSkyIsContinuousAcrossMidnight]' passed (0.001 seconds).
+Test Case '-[MarinCoreTests.SkyTests testSkyNeverJumps]' started.
+Test Case '-[MarinCoreTests.SkyTests testSkyNeverJumps]' passed (0.005 seconds).
+Test Case '-[MarinCoreTests.SkyTests testStormDullsTheSkyAndHidesStars]' started.
+Test Case '-[MarinCoreTests.SkyTests testStormDullsTheSkyAndHidesStars]' passed (0.001 seconds).
+Test Suite 'SkyTests' passed at 2026-11-13 01:58:56.525.
+	 Executed 4 tests, with 0 failures (0 unexpected) in 0.008 (0.009) seconds
+Test Suite 'WeatherTests' started at 2026-11-13 01:58:56.525.
+Test Case '-[MarinCoreTests.WeatherTests testSameDayAlwaysHasSameWeather]' started.
+Test Case '-[MarinCoreTests.WeatherTests testSameDayAlwaysHasSameWeather]' passed (0.001 seconds).
+Test Case '-[MarinCoreTests.WeatherTests testStormIsTheRoughestWeather]' started.
+Test Case '-[MarinCoreTests.WeatherTests testStormIsTheRoughestWeather]' passed (0.001 seconds).
+Test Case '-[MarinCoreTests.WeatherTests testStormsAreOccasional]' started.
+Test Case '-[MarinCoreTests.WeatherTests testStormsAreOccasional]' passed (0.001 seconds).
+Test Suite 'WeatherTests' passed at 2026-11-13 01:58:56.529.
+	 Executed 3 tests, with 0 failures (0 unexpected) in 0.003 (0.004) seconds
+Test Suite 'MarinCorePackageTests.xctest' passed at 2026-11-13 01:58:56.529.
+	 Executed 40 tests, with 0 failures (0 unexpected) in 0.059 (0.068) seconds
+Test Suite 'All tests' passed at 2026-11-13 01:58:56.529.
+	 Executed 40 tests, with 0 failures (0 unexpected) in 0.059 (0.069) seconds
+◇ Test run started.
+↳ Testing Library Version: 1902
+↳ Target Platform: arm64e-apple-macos14.0
+✔ Test run with 0 tests in 0 suites passed after 0.001 seconds.
