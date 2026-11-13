@@ -46,6 +46,8 @@ final class SeaScene: SKScene {
     var onBite: (() -> Void)?
     /// Told when a hooked bottle has been reeled up to the boat.
     var onCatch: (() -> Void)?
+    /// Calms the waves and removes lightning flashes, for players who prefer less motion.
+    var reduceMotion = false
     /// How magical the world has become through the voyager's poetry: 0 ordinary, 1 fully magical.
     var magic = 0.0 {
         didSet {
@@ -158,6 +160,13 @@ final class SeaScene: SKScene {
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("SeaScene is only created in code")
+    }
+
+    /// Puts the boat back where a voyage begins.
+    func returnToStart() {
+        worldX = 0
+        boatSpeed = 0
+        underwaterSpot = nil
     }
 
     // MARK: - Setting up
@@ -747,7 +756,8 @@ final class SeaScene: SKScene {
         let position = (Double(x) + worldX * band.parallax) / scale
         let long = sin(position * band.frequency + time * band.pace + band.phase)
         let short = sin(position * band.frequency * 2.1 - time * band.pace * 1.5 + band.phase * 1.7)
-        return CGFloat(band.amplitude * scale * waveScale * (long * 0.65 + short * 0.35))
+        let calm = reduceMotion ? 0.3 : 1.0
+        return CGFloat(band.amplitude * scale * waveScale * calm * (long * 0.65 + short * 0.35))
     }
 
     private func wavePath(_ band: Band, base: CGFloat, time: Double) -> CGPath {
@@ -861,7 +871,7 @@ final class SeaScene: SKScene {
     }
 
     private func lightning(step: Double) {
-        guard storminess > 0.7 else { return }
+        guard storminess > 0.7, !reduceMotion else { return }
         flashCountdown -= step
         guard flashCountdown <= 0 else { return }
         flashCountdown = Double.random(in: 3 ... 9)

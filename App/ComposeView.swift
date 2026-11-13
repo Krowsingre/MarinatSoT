@@ -165,6 +165,7 @@ struct ComposeView: View {
                     }
                 } label: {
                     Text("Keep this poem")
+                        .fixedSize()
                         .font(.system(size: 16, weight: .semibold, design: .serif))
                         .padding(.horizontal, 14)
                         .padding(.vertical, 7)

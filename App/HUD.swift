@@ -32,11 +32,16 @@ private enum Parchment {
 struct HUD: View {
     @ObservedObject var controller: SeaController
     @Binding var panel: Panel?
+    /// Called when the time-of-day badge is tapped, which pauses the game.
+    let onPause: () -> Void
 
     var body: some View {
         VStack {
             HStack(alignment: .top) {
-                TimeBadge(phase: controller.phase)
+                Button(action: onPause) {
+                    TimeBadge(phase: controller.phase)
+                }
+                .buttonStyle(.plain)
                 Spacer()
                 HStack(spacing: 10) {
                     IconButton(label: "Journal") { Image(systemName: "book").font(.system(size: 20)) } action: { panel = .journal }
@@ -225,6 +230,41 @@ private struct QuillIcon: View {
                 }
                 .stroke(Parchment.ink, style: StrokeStyle(lineWidth: 1.6, lineCap: .round))
             }
+        }
+    }
+}
+
+/// A small pause page, reached by tapping the time-of-day badge.
+struct PauseCard: View {
+    let resume: () -> Void
+    let leave: () -> Void
+
+    var body: some View {
+        ZStack {
+            Color.black.opacity(0.3)
+                .ignoresSafeArea()
+                .onTapGesture(perform: resume)
+            VStack(spacing: 12) {
+                Text("Paused")
+                    .font(.system(size: 26, weight: .semibold, design: .serif))
+                Text("Marin's voyage is saved as she goes.")
+                    .font(.system(size: 14, design: .serif))
+                HStack(spacing: 18) {
+                    Button("Carry on", action: resume)
+                    Button("Return to title", action: leave)
+                }
+                .font(.system(size: 17, weight: .semibold, design: .serif))
+                .padding(.top, 6)
+            }
+            .foregroundStyle(Parchment.ink)
+            .padding(.horizontal, 44)
+            .padding(.vertical, 26)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Parchment.fill)
+                    .overlay(RoundedRectangle(cornerRadius: 16).stroke(Parchment.edge.opacity(0.55), lineWidth: 1.4))
+                    .shadow(color: .black.opacity(0.25), radius: 8, y: 3)
+            )
         }
     }
 }

@@ -10,6 +10,8 @@ struct Caught: Identifiable {
 
 /// Connects the buttons on screen to the sea scene, and keeps what the voyager has gathered.
 final class SeaController: ObservableObject {
+    /// True while the home screen is showing.
+    @Published var atHome = true
     /// True while the line is in the water.
     @Published var isFishing = false
     /// True once a bottle has drifted onto the line.
@@ -35,6 +37,7 @@ final class SeaController: ObservableObject {
         magicOverride = settings.magicOverride
         scene = SeaScene(settings: settings)
         isFishing = settings.startFishing
+        atHome = settings.showHome
         scene.fishing = settings.startFishing
         scene.wantsSail = settings.startSailing && !settings.startFishing
 
@@ -58,8 +61,47 @@ final class SeaController: ObservableObject {
                 voyage.keep(bottle)
             }
         }
+        scene.reduceMotion = UserDefaults.standard.bool(forKey: "access.reduceMotion")
         shareMagic()
     }
+
+    // MARK: - Home screen
+
+    /// True when there is a voyage under way to continue.
+    var hasVoyage: Bool {
+        voyage != Voyage()
+    }
+
+    /// Leaves the home screen and carries on with the saved voyage.
+    func continueVoyage() {
+        atHome = false
+    }
+
+    /// Clears everything gathered and begins again.
+    func startNewVoyage() {
+        voyage = Voyage()
+        save()
+        shareMagic()
+        scene.returnToStart()
+        atHome = false
+    }
+
+    /// Goes back to the home screen. The voyage is already saved.
+    func returnHome() {
+        if isFishing {
+            toggleFishing()
+        }
+        scene.wantsSail = false
+        hasBite = false
+        caught = nil
+        atHome = true
+    }
+
+    func setReduceMotion(_ reduce: Bool) {
+        scene.reduceMotion = reduce
+    }
+
+    // MARK: - Playing
 
     /// Keeps a composed poem. Each poem kept makes the world a little more magical.
     func keepPoem(lines: [[String]], form: PoemForm) -> Bool {

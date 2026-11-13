@@ -10,17 +10,41 @@ struct MarinApp: App {
     }
 }
 
-/// The main screen: the sea, with the controls laid over it.
+/// The whole app: the sea, with either the home screen or the game's controls laid over it.
 struct GameView: View {
     @StateObject private var controller = SeaController()
     @State private var panel: Panel?
+    @State private var paused = false
 
     var body: some View {
         ZStack {
             SpriteView(scene: controller.scene)
                 .ignoresSafeArea()
 
-            HUD(controller: controller, panel: $panel)
+            if controller.atHome {
+                HomeView(controller: controller)
+                    .transition(.opacity)
+            } else {
+                game
+                    .transition(.opacity)
+            }
+        }
+        .animation(.easeInOut(duration: 0.6), value: controller.atHome)
+        .onAppear {
+            if controller.opensComposing {
+                panel = .poetry
+            }
+        }
+        .statusBarHidden(true)
+        .persistentSystemOverlays(.hidden)
+    }
+
+    /// The controls and pages shown while playing.
+    private var game: some View {
+        ZStack {
+            HUD(controller: controller, panel: $panel) {
+                paused = true
+            }
 
             if let panel {
                 if panel == .poetry {
@@ -39,13 +63,16 @@ struct GameView: View {
                     controller.caught = nil
                 }
             }
-        }
-        .onAppear {
-            if controller.opensComposing {
-                panel = .poetry
+
+            if paused {
+                PauseCard {
+                    paused = false
+                } leave: {
+                    paused = false
+                    panel = nil
+                    controller.returnHome()
+                }
             }
         }
-        .statusBarHidden(true)
-        .persistentSystemOverlays(.hidden)
     }
 }

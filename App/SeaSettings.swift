@@ -21,6 +21,8 @@ struct SeaSettings {
     var demoCatch = false
     /// Open with the composing page on screen.
     var demoCompose = false
+    /// Open on the home screen. Testing can skip it with `-seaHome 0`.
+    var showHome = true
     /// Show the sea at a chosen level of magic, 0 ... 1, whatever has been written.
     var magicOverride: Double?
 
@@ -43,6 +45,7 @@ struct SeaSettings {
         settings.quickBite = defaults.string(forKey: "seaBite") == "1"
         settings.demoCatch = defaults.string(forKey: "seaCatch") == "1"
         settings.demoCompose = defaults.string(forKey: "seaCompose") == "1"
+        settings.showHome = defaults.string(forKey: "seaHome") != "0"
         if let text = defaults.string(forKey: "seaMagic"), let magic = Double(text) {
             settings.magicOverride = min(max(magic, 0), 1)
         }

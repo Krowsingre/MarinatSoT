@@ -39,7 +39,7 @@ shoot() {
   local name="$1"
   shift
   xcrun simctl terminate "$UDID" "$BUNDLE" 2>/dev/null || true
-  xcrun simctl launch "$UDID" "$BUNDLE" "$@"
+  xcrun simctl launch "$UDID" "$BUNDLE" -seaHome "${HOME_SCREEN:-0}" "$@"
   sleep 9
   xcrun simctl io "$UDID" screenshot "$OUT/$name.png"
   # The game is played in landscape. If the picture comes out upright, turn it on its side.
@@ -55,6 +55,8 @@ shoot() {
 xcrun simctl launch "$UDID" "$BUNDLE" -seaHour 12 -seaWeather clear
 sleep 15
 
+HOME_SCREEN=1 shoot 0-home-dusk  -seaHour 18.4 -seaWeather clear
+HOME_SCREEN=1 shoot 0-home-night -seaHour 22   -seaWeather clear -seaMagic 0.6
 shoot 1-sailing-day    -seaHour 10   -seaWeather clear
 shoot 2-under-way-dusk -seaHour 18.6 -seaWeather clear -seaSailing 1
 shoot 3-farther-on     -seaHour 13   -seaWeather cloudy -seaWorldX 5200
