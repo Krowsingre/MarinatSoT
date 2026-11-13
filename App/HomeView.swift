@@ -323,7 +323,7 @@ private struct WhaleInTheStars: View {
     var body: some View {
         Canvas { context, size in
             func place(_ point: CGPoint) -> CGPoint {
-                CGPoint(x: point.x * size.width, y: point.y * size.height)
+                CGPoint(x: 6 + point.x * (size.width - 12), y: point.y * size.height)
             }
             var body = Path()
             body.addLines(outline.map(place))

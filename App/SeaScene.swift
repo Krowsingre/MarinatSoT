@@ -48,6 +48,9 @@ final class SeaScene: SKScene {
     var onCatch: (() -> Void)?
     /// Calms the waves and removes lightning flashes, for players who prefer less motion.
     var reduceMotion = false
+    /// True while the home screen is over the sea. The boat waits to the right, clear of the title.
+    var showsHome = false
+    private var boatFraction: CGFloat { showsHome ? 0.70 : 0.36 }
     /// How magical the world has become through the voyager's poetry: 0 ordinary, 1 fully magical.
     var magic = 0.0 {
         didSet {
@@ -379,7 +382,7 @@ final class SeaScene: SKScene {
         motes.particleScale = 0.42 * k
         motes.particleScaleRange = 0.25 * k
         layoutAurora()
-        boat.position = CGPoint(x: width * 0.36, y: boatLineY)
+        boat.position = CGPoint(x: width * boatFraction, y: boatLineY)
 
         spray.particleSpeed = 70 * k
         spray.particleSpeedRange = 40 * k
@@ -790,7 +793,9 @@ final class SeaScene: SKScene {
 
     private func moveBoat(time: Double) {
         guard let front = nearBands.first else { return }
-        let x = boat.position.x
+        // The boat glides between its place on the home screen and its place in the game.
+        let x = boat.position.x + (size.width * boatFraction - boat.position.x) * 0.045
+        boat.position.x = x
         let reach = 18 * k
         let lift = waveHeight(front, at: x, time: time)
         let ahead = waveHeight(front, at: x + reach, time: time)

@@ -38,6 +38,7 @@ final class SeaController: ObservableObject {
         scene = SeaScene(settings: settings)
         isFishing = settings.startFishing
         atHome = settings.showHome
+        scene.showsHome = settings.showHome
         scene.fishing = settings.startFishing
         scene.wantsSail = settings.startSailing && !settings.startFishing
 
@@ -74,6 +75,7 @@ final class SeaController: ObservableObject {
 
     /// Leaves the home screen and carries on with the saved voyage.
     func continueVoyage() {
+        scene.showsHome = false
         atHome = false
     }
 
@@ -83,6 +85,7 @@ final class SeaController: ObservableObject {
         save()
         shareMagic()
         scene.returnToStart()
+        scene.showsHome = false
         atHome = false
     }
 
@@ -94,6 +97,7 @@ final class SeaController: ObservableObject {
         scene.wantsSail = false
         hasBite = false
         caught = nil
+        scene.showsHome = true
         atHome = true
     }
 
